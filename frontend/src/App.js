@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useCursor, MeshReflectorMaterial, Image, Text, Environment } from '@react-three/drei'
 import { useRoute, useLocation } from 'wouter'
@@ -8,31 +8,65 @@ import getUuid from 'uuid-by-string'
 
 const GOLDENRATIO = 1.61803398875
 
-export const App = ({ images }) => (
-  <Canvas dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
-    <color attach="background" args={['#191920']} />
-    <fog attach="fog" args={['#191920', 0, 15]} />
-    <group position={[0, -0.5, 0]}>
-      <Frames images={images} />
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[50, 50]} />
-        <MeshReflectorMaterial
-          blur={[300, 100]}
-          resolution={2048}
-          mixBlur={1}
-          mixStrength={80}
-          roughness={1}
-          depthScale={1.2}
-          minDepthThreshold={0.4}
-          maxDepthThreshold={1.4}
-          color="#050505"
-          metalness={0.5}
-        />
-      </mesh>
-    </group>
-    <Environment preset="city" />
-  </Canvas>
-)
+export const App = ({ images }) => {
+  const appContainerStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    display: 'flex'
+  }
+
+  const canvasStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%'
+  }
+
+  const htmlElementStyle = {
+    position: 'absolute',
+    top: 0,
+    left: '50%', // Position the HTML element on the right side
+    width: '50%', // Make it take up half of the screen width
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)' // For demonstration purposes
+  }
+
+  return (
+    <div style={appContainerStyle}>
+      <Canvas dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }} style={canvasStyle}>
+        <color attach="background" args={['#191920']} />
+        <fog attach="fog" args={['#191920', 0, 15]} />
+        <group position={[0, -0.5, 0]}>
+          <Frames images={images} />
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[50, 50]} />
+            <MeshReflectorMaterial
+              blur={[300, 100]}
+              resolution={2048}
+              mixBlur={1}
+              mixStrength={80}
+              roughness={1}
+              depthScale={1.2}
+              minDepthThreshold={0.4}
+              maxDepthThreshold={1.4}
+              color="#050505"
+              metalness={0.5}
+            />
+          </mesh>
+        </group>
+        <Environment preset="city" />
+      </Canvas>
+      <div style={htmlElementStyle}>
+        {/* Your HTML content for the right side of the screen */}
+        <h1>This is the HTML element on the right side.</h1>
+      </div>
+    </div>
+  )
+}
 
 function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
   const ref = useRef()
