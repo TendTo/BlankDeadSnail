@@ -14,14 +14,15 @@ export const App = ({ images }) => (
     <color attach="background" args={['#FFFFFF']} />
     <group position={[0, -0.5, 0]}>
       {/* <Frames images={images} /> */}
-      <Shelf />
+      {/* <SimpleBox position={[-1, 1, 3]} /> */}
+      <Shelfs />
       <Floor />
     </group>
     <Environment preset="city" />
   </Canvas>
 )
 
-function Shelf({ q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
+function Shelfs({ q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
   p.set(0, 0, 5.5)
   q.identity()
 
@@ -32,18 +33,23 @@ function Shelf({ q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
 
   return (
     <group>
-      <mesh name="rightShelf" scale={[20, GOLDENRATIO, 0.05]} position={[1, GOLDENRATIO / 2, 0]} rotation={[0, -Math.PI / 2, 0]}>
-        <boxGeometry />
-        <meshStandardMaterial color="#151515" metalness={0.5} roughness={0.5} envMapIntensity={2} />
-      </mesh>
-      <mesh name="leftShelf" scale={[20, GOLDENRATIO, 0.05]} position={[-1, GOLDENRATIO / 2, 0]} rotation={[0, Math.PI / 2, 0]}>
+      {Shelf('right', [20, GOLDENRATIO, 0.05], [1, GOLDENRATIO / 2, 0], [0, -Math.PI / 2, 0])}
+      {Shelf('left', [20, GOLDENRATIO, 0.05], [-1, GOLDENRATIO / 2, 0], [0, Math.PI / 2, 0])}
+    </group>
+  )
+}
+
+function Shelf(side, scale, position, rotation) {
+  return (
+    <group>
+      <ShelfProducts side={side} />
+      <mesh name={side} scale={scale} position={position} rotation={rotation}>
         <boxGeometry />
         <meshStandardMaterial color="#151515" metalness={0.5} roughness={0.5} envMapIntensity={2} />
       </mesh>
     </group>
   )
 }
-
 function Floor() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]}>
@@ -61,6 +67,15 @@ function Floor() {
         metalness={0.5}
         mirror={0}
       />
+    </mesh>
+  )
+}
+
+function SimpleBox({ position, rotation, scale }) {
+  return (
+    <mesh position={position} rotation={rotation} scale={scale}>
+      <boxGeometry />
+      <meshStandardMaterial color="#FF0000" />
     </mesh>
   )
 }
@@ -111,16 +126,38 @@ function Frame({ url, c = new THREE.Color(), ...props }) {
   })
   return (
     <group {...props}>
-      <mesh
-        name={name}
-        onPointerOver={(e) => (e.stopPropagation(), hover(true))}
-        onPointerOut={() => hover(false)}
-        scale={[10, GOLDENRATIO, 0.05]}
-        position={[0, GOLDENRATIO / 2, 0]}>
+      <mesh name={name} onPointerOver={(e) => (e.stopPropagation(), hover(true))} onPointerOut={() => hover(false)} scale={[0.5, 0.5, 0.02]} position={[0, 1, 2]}>
         <boxGeometry />
         <meshStandardMaterial color="#151515" metalness={0.5} roughness={0.5} envMapIntensity={2} />
         <Image raycast={() => null} ref={image} position={[0, 0, 0.7]} url={url} />
       </mesh>
     </group>
   )
+}
+
+function ShelfProducts(side) {
+  const hello = side ? 1 : 0
+  const boxScale = [0.4, 0.4, 0.02]
+  const boxRotation = [0, -Math.PI / 2, 0]
+
+  const numRows = 26 // Define the number of rows
+  const numCols = 3 // Define the number of columns
+  const spacing = 0.5 // Define the spacing between boxes
+
+  const correctX = -0.9
+  const closestZ = 5
+  const highestY = 1.3
+
+  const boxes = []
+
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < numCols; j++) {
+      const y = highestY - j * spacing
+      const z = closestZ - i * spacing
+
+      boxes.push(<SimpleBox key={`${i}-${j}`} position={[correctX, y, z]} rotation={boxRotation} scale={boxScale} />)
+    }
+  }
+
+  return <group>{boxes}</group>
 }
