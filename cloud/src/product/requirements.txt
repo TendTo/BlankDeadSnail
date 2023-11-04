@@ -1,0 +1,3 @@
+# Optionally include additional dependencies here
+faker
+redis
