@@ -5,6 +5,7 @@ import { useCursor, MeshReflectorMaterial, Image, Text, Environment } from '@rea
 import { useRoute, useLocation } from 'wouter'
 import { easing } from 'maath'
 import getUuid from 'uuid-by-string'
+import MovieDetails from './MovieDetails'
 
 const GOLDENRATIO = 1.61803398875
 
@@ -27,13 +28,24 @@ export const App = ({ images }) => {
   }
 
   const htmlElementStyle = {
-    position: 'absolute',
+    position: 'fixed',
     top: 0,
-    left: '50%', // Position the HTML element on the right side
-    width: '50%', // Make it take up half of the screen width
+    right: '-100%', // Initially hidden off the screen to the right
+    width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)' // For demonstration purposes
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    transition: 'right 0.8s' // Add a transition for smooth sliding animation
   }
+
+  const movieData = {
+    title: 'Sample Movie',
+    synopsis: 'This is a sample movie synopsis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    genre: 'Action',
+    rating: '8.0',
+    adultRating: 'R',
+  };
+
+  const [showHtmlOverlay, setShowHtmlOverlay] = useState(false)
 
   return (
     <div style={appContainerStyle}>
@@ -41,7 +53,7 @@ export const App = ({ images }) => {
         <color attach="background" args={['#191920']} />
         <fog attach="fog" args={['#191920', 0, 15]} />
         <group position={[0, -0.5, 0]}>
-          <Frames images={images} />
+          <Frames images={images} onFrameClick={(bool) => setShowHtmlOverlay(bool)} />
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[50, 50]} />
             <MeshReflectorMaterial
@@ -60,15 +72,15 @@ export const App = ({ images }) => {
         </group>
         <Environment preset="city" />
       </Canvas>
-      <div style={htmlElementStyle}>
+      <div style={{ ...htmlElementStyle, right: showHtmlOverlay ? '-35%' : '-100%' }}>
         {/* Your HTML content for the right side of the screen */}
-        <h1>This is the HTML element on the right side.</h1>
+        <MovieDetails {...movieData} />
       </div>
     </div>
   )
 }
 
-function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3() }) {
+function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3(), onFrameClick }) {
   const ref = useRef()
   const clicked = useRef()
   const [, params] = useRoute('/item/:id')
@@ -77,11 +89,13 @@ function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3() })
     clicked.current = ref.current.getObjectByName(params?.id)
     if (clicked.current) {
       clicked.current.parent.updateWorldMatrix(true, true)
-      clicked.current.parent.localToWorld(p.set(1, GOLDENRATIO / 2, 1.25))
+      clicked.current.parent.localToWorld(p.set(1.25, GOLDENRATIO / 2, 1.25))
       clicked.current.parent.getWorldQuaternion(q)
+      onFrameClick(true)
     } else {
       p.set(0, 0, 5.2)
       q.identity()
+      onFrameClick(false)
     }
   })
   useFrame((state, dt) => {
