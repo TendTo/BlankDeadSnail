@@ -1,12 +1,13 @@
 import React from 'react'
 
 import { useCallback } from 'react'
+import { Button } from 'react-daisyui'
 
-const MovieDetails = ({ id, title, overview, genres, tagline, release_date, poster_path, basketMovies, setBasketMovies }) => {
+const MovieDetails = ({ basketMovies, setBasketMovies, ...props }) => {
   const addMovieBasket = useCallback(
     (newId) => {
       const newBasketMovies = basketMovies.filter((movie) => movie.id !== newId)
-      newBasketMovies.push({ id: newId, title, overview, genres, tagline, release_date, poster_path })
+      newBasketMovies.push({ id: newId, ...props })
       setBasketMovies(newBasketMovies)
       localStorage.setItem('basket', JSON.stringify(newBasketMovies))
     },
@@ -21,33 +22,40 @@ const MovieDetails = ({ id, title, overview, genres, tagline, release_date, post
   }
 
   const h1Style = {
-    fontSize: '24px',
-    margin: '0'
+    fontSize: '40px',
+    margin: '0px'
   }
 
-  const synopsisStyle = {
-    fontSize: '16px',
-    marginTop: '10px'
+  const h4Style = {
+    fontSize: '14px',
+    margin: '3px'
   }
 
-  const paragraphStyle = {
-    fontSize: '18px',
-    margin: '10px 0'
+  const size = {
+    fontSize: '12px'
   }
+
+  const mainbox = { width: 750 }
+
+  const overviewbox = { width: 500 }
 
   return (
     <div style={movieDetailsStyle}>
-      <h1 style={h1Style}>{title}</h1>
-      <p className="synopsis" style={synopsisStyle}>
-        {overview}
-      </p>
-      <p style={paragraphStyle}>Genre: {genres}</p>
-      <p style={paragraphStyle}>Tagline: {tagline}</p>
-      <p style={paragraphStyle}>Release date: {release_date}</p>
-      <p style={paragraphStyle}>URL: {poster_path}</p>
-      <button className="add-to-cart" onClick={() => addMovieBasket(id)}>
+      <div style={mainbox}>
+        <h1 style={h1Style}>{props.title}</h1>
+        <h4 style={h4Style}>{props.release_date}</h4>
+        <h4 style={h4Style}>
+          {props.runtime} minutes, {props.genres}
+        </h4>
+        <p style={size}>Original Language: {props.original_language}</p>
+        <p style={size}>Production Co: {props.production_companies}</p>
+        <div style={overviewbox}>
+          <p>{props.overview}</p>
+        </div>
+      </div>
+      <Button color="accent" onClick={() => addMovieBasket(props.id)}>
         Add to Cart
-      </button>
+      </Button>
     </div>
   )
 }

@@ -146,8 +146,12 @@ function SearchBox() {
           className="search-input"
         />
         <div className="buttons">
-          <Button onClick={handleSearchClick}>Search</Button>
-          <Button onClick={handleRandomClick}>Random</Button>
+          <Button color="nuetral" onClick={handleSearchClick}>
+            Search
+          </Button>
+          <Button color="primary" onClick={handleRandomClick}>
+            Random
+          </Button>
         </div>
       </div>
     </div>

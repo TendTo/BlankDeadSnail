@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Button, Modal } from 'react-daisyui'
 
 /**
@@ -28,13 +28,15 @@ export function Basket({ basketMovies, setBasketMovies }) {
 
   return (
     <>
-      <Button onClick={() => handleShow()}>BASKET</Button>
+      <Button className="basket-button" onClick={() => handleShow()}>
+        BASKET
+      </Button>
       <Modal ref={ref}>
         <Modal.Header className="font-bold">Your basket</Modal.Header>
         <Modal.Body>
           {basketMovies.map((movie) => (
             <div key={movie.id}>
-              <div className="flex flex-auto gap-1">
+              <div className="flex flex-auto gap-1 justify-between">
                 <p>{movie.title}</p>
                 <p>£1</p>
               </div>
@@ -43,13 +45,13 @@ export function Basket({ basketMovies, setBasketMovies }) {
               </Button> */}
             </div>
           ))}
-          <div className="grand-total">Total price: £{Array.isArray(basketMovies) ? basketMovies.length: 0}</div>
+          <div className="grand-total flex justify-between">Total price: £{Array.isArray(basketMovies) ? basketMovies.length : 0}</div>
         </Modal.Body>
         <Modal.Actions>
           <form method="dialog">
-            <Button>Close</Button>
+            <Button color="primary">Close</Button>
           </form>
-          <Button type="button" className="btn btn-danger clear-all" onClick={() => setBasketMovies([])}>
+          <Button color="error" type="button" className="btn btn-danger clear-all" onClick={() => setBasketMovies([])}>
             Clear All
           </Button>
         </Modal.Actions>
