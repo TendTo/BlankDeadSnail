@@ -25,11 +25,21 @@ export const App = ({ images }) => {
   const [loading, setLoading] = useState(true)
 
   const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
+  const isSearching = sessionStorage.getItem('searching')
+
+  let currentURL
+  if (isSearching && isSearching == 'true') {
+    currentURL = SEARCH_URL + sessionStorage.getItem('search_term')
+    sessionStorage.setItem('searching', 'false')
+  } else {
+    currentURL = RANDOM_URL + currentCounter
+  }
 
   useEffect(() => {
     axios
-      .get(RANDOM_URL + currentCounter)
+      .get(currentURL)
       .then((response) => {
+        console.log(response.data)
         for (let i = 0; i < images.length; i++) {
           images[i].movie = response.data[i]
         }
@@ -60,13 +70,22 @@ export const App = ({ images }) => {
   const handleRandomClick = () => {
     const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
     sessionStorage.setItem('counter', String(currentCounter + 1))
+    sessionStorage.setItem('searching', 'false')
+    window.location.reload()
+  }
+
+  const handleSearchClick = () => {
+    sessionStorage.setItem('search_term', searchText)
+    sessionStorage.setItem('searching', 'true')
     window.location.reload()
   }
 
   return (
     <div className="app-container">
       {loading ? (
-        <div>Loading...</div>
+        <div className="loader-container">
+          <div className="spinner"></div>
+        </div>
       ) : (
         <Canvas className="canvas" dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
           <color attach="background" args={['#191920']} />
@@ -81,13 +100,15 @@ export const App = ({ images }) => {
       )}
 
       {loading ? (
-        <div>Loading...</div>
+        <div className="loader-container">
+          <div className="spinner"></div>
+        </div>
       ) : (
         <div className="parent">
           <div className="search-bar-container">
-            <input type="text" placeholder="Search..." value={searchText} onChange={handleSearchInputChange} className="search-input" />
+            <input type="text" placeholder="A movie about..." value={searchText} onChange={handleSearchInputChange} className="search-input" />
             <div className="buttons">
-              <button className="search-button" onClick={handleRandomClick}>
+              <button className="search-button" onClick={handleSearchClick}>
                 Search
               </button>
               <button className="random-button" onClick={handleRandomClick}>
