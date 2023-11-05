@@ -12,27 +12,27 @@ import json
 if TYPE_CHECKING:
     from flask import Request
 
+HEADERS = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+}
+
 
 @functions_framework.errorhandler(KeyError)
 def key_error(e: "KeyError") -> "Response":
-    return Response(f"The key {e} was not found.", 500)
+    return Response(f"The key {e} was not found.", 500, headers=HEADERS)
 
 
 @functions_framework.errorhandler(AttributeError)
 def attribute_error(e: "AttributeError") -> "Response":
-    return Response(f"The attribute {e} was not found.", 500)
+    return Response(f"The attribute {e} was not found.", 500, headers=HEADERS)
 
 
 @functions_framework.errorhandler(ValueError)
 def value_error(e: "ValueError") -> "Response":
-    return Response(f"The value provided was not the correct type: {e}.", 400)
-
-
-def from_movies_to_response(movies: "list[Movie]") -> "Response":
     return Response(
-        json.dumps([movie.to_dict() for movie in movies]),
-        200,
-        headers={"Content-Type": "application/json"},
+        f"The value provided was not the correct type: {e}.", 400, headers=HEADERS
     )
 
 
@@ -42,17 +42,19 @@ def get(req: "Request") -> "Response":
     # if prod_id := re.match(r"^/\d+$", path):
     if re.match(r"^/random$", path):
         n = int(req.args.get("n", 7))
-        movies = Movie.random(n)
-        return from_movies_to_response(movies)
+        return Response(
+            Movie.random_json(n),
+            200,
+            headers=HEADERS,
+        )
     if re.match(r"^/", path):
         n = int(req.args.get("n", 7))
         title = req.args.get("title", None)
         if title is None:
-            return Response("missing title", 400)
-        movies = Movie.from_title(title, n)
-        return from_movies_to_response(movies)
+            return Response("missing title", 400, headers=HEADERS)
+        return Response(Movie.from_title_json(title, n), 200, headers=HEADERS)
 
-    return Response("unsupported path", 400)
+    return Response("unsupported path", 400, headers=HEADERS)
 
 
 def post(req: "Request") -> str:
@@ -72,13 +74,7 @@ def main(req: "Request") -> "Response":
     # return redis_call()
     if req.method == "GET":
         return get(req)
-    if req.method == "POST":
-        return post(req)
-    if req.method == "PUT":
-        return put(req)
-    if req.method == "DELETE":
-        return delete(req)
-    return Response("unsupported method", 400)
+    return Response("unsupported method", 400, headers=HEADERS)
 
 
 def bq_call():

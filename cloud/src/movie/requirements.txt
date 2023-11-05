@@ -2,3 +2,4 @@
 redis
 google-cloud
 google-cloud-bigquery
+requests
