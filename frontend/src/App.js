@@ -7,17 +7,21 @@ import { easing } from 'maath'
 import getUuid from 'uuid-by-string'
 import MovieDetails from './MovieDetails'
 import axios from 'axios'
+import { Floor } from './Floor'
 
 const GOLDENRATIO = 1.61803398875
 
 const RANDOM_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie/random?seed=1'
 
+/**
+ * Main app component
+ * @param {{images: Image[]}} images - Array of image objects
+ */
 export const App = ({ images }) => {
   const [showMovieOverlay, setshowMovieOverlay] = useState(false)
   const [movieData, setMovieData] = useState(null)
   const [showSearchBar, setShowSearchBar] = useState(false)
   const [searchText, setSearchText] = useState('')
-
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,21 +71,7 @@ export const App = ({ images }) => {
           <group position={[0, -0.5, 0]}>
             <Title />
             <Frames images={images} onFrameClick={handleFrameClick} />
-            <mesh rotation={[-Math.PI / 2, 0, 0]}>
-              <planeGeometry args={[50, 50]} />
-              <MeshReflectorMaterial
-                blur={[300, 100]}
-                resolution={2048}
-                mixBlur={1}
-                mixStrength={80}
-                roughness={1}
-                depthScale={1.2}
-                minDepthThreshold={0.4}
-                maxDepthThreshold={1.4}
-                color="#050505"
-                metalness={0.5}
-              />
-            </mesh>
+            <Floor />
           </group>
           <Environment preset="city" />
         </Canvas>
