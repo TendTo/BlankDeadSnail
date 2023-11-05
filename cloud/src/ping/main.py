@@ -2,6 +2,9 @@
 from typing import TYPE_CHECKING
 import functions_framework
 from flask import Response
+import os
+import redis
+
 
 if TYPE_CHECKING:
     from flask import Request
@@ -9,4 +12,9 @@ if TYPE_CHECKING:
 
 @functions_framework.http
 def main(_: "Request") -> "Response":
-    return Response("pong", 200)
+    r = redis.Redis(
+        host=os.environ["REDIS_HOST"],
+        port=os.environ["REDIS_PORT"],
+        credential_provider=os.environ["REDIS_PSW"],
+    )
+    return Response(str(r.ping()))

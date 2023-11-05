@@ -1,5 +1,4 @@
 # Optionally include additional dependencies here
 redis
-aiohttp
-aiodns
-faker
+google-cloud
+google-cloud-bigquery
