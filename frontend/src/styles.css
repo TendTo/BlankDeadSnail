@@ -53,3 +53,58 @@ body {
 .hide-movie-overlay {
   right: -100%;
 }
+
+/* Search Bar Container CSS */
+.search-bar-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  bottom: 70px; /* Adjust the distance from the bottom as needed */
+  left: 0;
+  right: 0;
+  gap: 5px;
+}
+
+/* Stylized Search Input CSS */
+.search-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+/* Search Button CSS */
+.search-button {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Random Button CSS */
+.random-button {
+  background-color: #ff5722;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.parent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Ensure the parent container fills the full viewport height. */
+}

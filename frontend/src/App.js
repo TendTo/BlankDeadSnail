@@ -10,155 +10,20 @@ import axios from 'axios'
 
 const GOLDENRATIO = 1.61803398875
 
-const SERVER_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie/random?seed=1'
-
-const MOVIES = [
-  {
-    id: '14555',
-    overview: 'No overview found.',
-    poster_path: '/v7gUz7TWDJKidDsX63HyqVWFikG.jpg',
-    original_language: 'fr',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['Drama'],
-    budget: '0',
-    production_companies: ['Alexandre Films'],
-    title: 'Sagan',
-    production_countries: ['France'],
-    release_date: '2008-06-11',
-    runtime: 180,
-    tagline: ''
-  },
-  {
-    id: '214418',
-    overview:
-      'Amazonia is an adventure in 3D inside the largest rainforest on the planet: the Amazon rainforest. Chestnut is a Capuchin monkey domesticated who survives a plane crash and finds himself alone in the dense forest. The monkey needs to learn to live in freedom, in a new world where animals of all kinds: Jaguars, alligators, snakes, tapirs, hawks. Gradually, Brown learns to live in the forest, making new friends, especially the monkey Gaia, their fellow species.',
-    poster_path: '/mJ7QmMOJhwbb5qRUo1UfsQjS2Dk.jpg',
-    original_language: 'pt',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['Family', 'Adventure'],
-    budget: '0',
-    production_companies: [
-      'France 2 Cinéma',
-      'Gullane Filmes',
-      'Le Pacte',
-      'Canal+',
-      'Telecine',
-      'Globo filmes',
-      'Media Programme of the European Community',
-      'Biloba',
-      'Tetra Pak',
-      'ANCINE/Ministério da Cultura, Fundo Setorial do Audiovisual',
-      'Banco da Amazônia',
-      'CNC - Nouvelles Technologies en Production',
-      'FINEP/Ministério da Ciência, Tecnologia e Inovacão',
-      'GDF Suez',
-      'La Procirep-Angoa',
-      'Natura'
-    ],
-    title: 'Amazonia',
-    production_countries: ['Brazil', 'France'],
-    release_date: '2013-11-26',
-    runtime: 83,
-    tagline: ''
-  },
-  {
-    id: '310814',
-    overview:
-      "In this love story with Hitchcockian overtones, a computer chip salesman meets the perfect girl (a brilliant software developer) -- and then she disappears. After Jack Livingstone (Justin Kunkle) finds Julie Romanov (Jenn Gotzon) through an Internet dating service, he's convinced life is perfect. But when she vanishes, he's left distraught and confused. Turning to Julie's mother (Hitchcock vet Tippi Hedren), he learns a startling revelation.",
-    poster_path: '/neGglXfE3QIhILwu0xw4SdP6Pao.jpg',
-    original_language: 'en',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['Romance', 'Science Fiction'],
-    budget: '0',
-    production_companies: ['Golden Gate Pictures'],
-    title: 'Julie & Jack',
-    production_countries: ['United States of America'],
-    release_date: '2003-01-01',
-    runtime: 91,
-    tagline: 'Their love is forever'
-  },
-  {
-    id: '61302',
-    overview:
-      'Culloden is a 1964 docudrama written and directed by Peter Watkins for BBC TV. It portrays the 1746 Battle of Culloden that resulted in the British Army\'s destruction of the Scottish Jacobite uprising and, in the words of the narrator, "tore apart forever the clan system of the Scottish Highlands". Described in its opening credits as "an account of one of the most mishandled and brutal battles ever fought in Britain", Culloden was hailed as a breakthrough for its cinematography as well as its use of non-professional actors and its presentation of an historical event in the style of modern TV war reporting. The film was based on John Prebble\'s study of the battle.',
-    poster_path: '/oKVFnfPrkhjcK4s73dcGjD4wi1k.jpg',
-    original_language: 'en',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['War', 'Documentary', 'Drama', 'History'],
-    budget: '0',
-    production_companies: ['British Broadcasting Corporation (BBC)'],
-    title: 'Culloden',
-    production_countries: ['United Kingdom'],
-    release_date: '1964-05-24',
-    runtime: 69,
-    tagline: ''
-  },
-  {
-    id: '127540',
-    overview:
-      'This eye-opening documentary follows American basketball player Kevin Sheppard during his 2008-09 season playing for a professional team in Iran. Although Kevin is nervous, he makes many friends, including several politically active Iranian women.',
-    poster_path: '/5rtMRuB9l9sG7uFGs7LqXExIZqc.jpg',
-    original_language: 'en',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['Documentary'],
-    budget: '0',
-    production_companies: [],
-    title: 'The Iran Job',
-    production_countries: ['United States of America', 'Iran'],
-    release_date: '2012-09-28',
-    runtime: 90,
-    tagline: ''
-  },
-  {
-    id: '48287',
-    overview: "It's the story about seven very different best friends, and one summer that will bring them together like never before.",
-    poster_path: '/1Hbz9SWu98m4LsMPxfRNFIGKxuT.jpg',
-    original_language: 'en',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['Comedy', 'Drama', 'Family'],
-    budget: '0',
-    production_companies: ['Columbia Pictures Corporation', 'Beacon Pictures'],
-    title: 'The Baby-Sitters Club',
-    production_countries: ['United States of America'],
-    release_date: '1995-08-18',
-    runtime: 94,
-    tagline: 'Friends Forever'
-  },
-  {
-    id: '161297',
-    overview:
-      "A charming and very daring thief known as Arsene Lupin is terrorizing the wealthy of Paris, he even goes so far as to threaten the Mona Lisa. But the police, led by the great Guerchard, think they know Arsene Lupin's identity, and they have a secret weapon to catch him.",
-    poster_path: '/diIDZo7KMKIRXMG2sYQC7QdKUI2.jpg',
-    original_language: 'en',
-    adult: 'False',
-    belongs_to_collection: [],
-    genres: ['Mystery', 'Romance'],
-    budget: '0',
-    production_companies: ['Metro-Goldwyn-Mayer (MGM)'],
-    title: 'Arsène Lupin',
-    production_countries: ['United States of America'],
-    release_date: '1932-03-05',
-    runtime: 84,
-    tagline: ''
-  }
-]
+const RANDOM_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie/random?seed=1'
 
 export const App = ({ images }) => {
   const [showMovieOverlay, setshowMovieOverlay] = useState(false)
   const [movieData, setMovieData] = useState(null)
+  const [showSearchBar, setShowSearchBar] = useState(false)
+  const [searchText, setSearchText] = useState('')
 
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Make an API call here
     axios
-      .get(SERVER_URL)
+      .get(RANDOM_URL)
       .then((response) => {
         for (let i = 0; i < images.length; i++) {
           images[i].movie = response.data[i]
@@ -170,8 +35,6 @@ export const App = ({ images }) => {
         setLoading(false) // Update loading state to false even in case of an error
       })
   }, [])
-
-  console.log(movieData)
 
   const handleFrameClick = useCallback(
     (bool, newData) => {
@@ -185,9 +48,17 @@ export const App = ({ images }) => {
     [showMovieOverlay]
   )
 
+  const handleSearchInputChange = useCallback((e) => {
+    setSearchText(e.target.value)
+  }, [])
+
+  const handleRandomClick = () => {
+    console.log('Enter')
+  }
+
   return (
     <div className="app-container">
-      {loading ? ( // Check if loading is true
+      {loading ? (
         <div>Loading...</div>
       ) : (
         <Canvas className="canvas" dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
@@ -216,6 +87,23 @@ export const App = ({ images }) => {
         </Canvas>
       )}
 
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <div className="parent">
+          <div className="search-bar-container">
+            <input type="text" placeholder="Search..." value={searchText} onChange={handleSearchInputChange} className="search-input" />
+            <div className="buttons">
+              <button className="search-button" onClick={handleRandomClick}>
+                Search
+              </button>
+              <button className="random-button" onClick={handleRandomClick}>
+                Random
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className={`movie-description ${showMovieOverlay ? 'show-movie-overlay' : 'hide-movie-overlay'}`}>
         {showMovieOverlay && <MovieDetails {...movieData} />}
       </div>
