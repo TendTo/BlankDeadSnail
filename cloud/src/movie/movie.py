@@ -100,7 +100,6 @@ class Movie:
             LIMIT {n}
         """
         job_config = None
-        print("seed", seed)
         if seed:
             query = f"""
                 SELECT *, MD5(CONCAT(@seed, id)) as r
@@ -139,7 +138,6 @@ class Movie:
 
     @classmethod
     def from_row(cls, row: dict) -> "Movie":
-        print(row.r)
         return cls(
             id=row.id or 0,
             overview=row.overview or "",
