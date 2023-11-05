@@ -8,6 +8,7 @@ import getUuid from 'uuid-by-string'
 import MovieDetails from './MovieDetails'
 import axios from 'axios'
 import { Floor } from './Floor'
+import { Basket } from './Basket'
 
 const GOLDENRATIO = 1.61803398875
 
@@ -23,6 +24,7 @@ export const App = ({ images }) => {
   const [movieData, setMovieData] = useState(null)
 
   const [loading, setLoading] = useState(true)
+  const [basketMovies, setBasketMovies] = useState([])
 
   const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
   const isSearching = sessionStorage.getItem('searching')
@@ -49,6 +51,11 @@ export const App = ({ images }) => {
         console.error('API call failed', error)
         setLoading(false)
       })
+  }, [])
+
+  useEffect(() => {
+    const record = localStorage.getItem('modules')
+    if (record) setBasketMovies(JSON.parse(record))
   }, [])
 
   const handleFrameClick = useCallback(
@@ -89,8 +96,9 @@ export const App = ({ images }) => {
       ) : (
         <SearchBox />
       )}
+      {loading ? <div>Loading...</div> : <Basket basketMovies={basketMovies} setBasketMovies={setBasketMovies} />}
       <div className={`movie-description ${showMovieOverlay ? 'show-movie-overlay' : 'hide-movie-overlay'}`}>
-        {showMovieOverlay && <MovieDetails {...movieData} />}
+        {showMovieOverlay && <MovieDetails setBasketMovies={setBasketMovies} basketMovies={basketMovies} {...movieData} />}
       </div>
     </div>
   )

@@ -1,7 +1,17 @@
 import React from 'react'
 
-const MovieDetails = (props) => {
-  console.log(props)
+import { useCallback } from 'react'
+
+const MovieDetails = ({ id, title, overview, genres, tagline, release_date, poster_path, basketMovies, setBasketMovies }) => {
+  const addMovieBasket = useCallback(
+    (newId) => {
+      const newBasketMovies = basketMovies.filter((movie) => movie.id !== newId)
+      newBasketMovies.push({ id: newId, title, overview, genres, tagline, release_date, poster_path })
+      setBasketMovies(newBasketMovies)
+      localStorage.setItem('basket', JSON.stringify(newBasketMovies))
+    },
+    [basketMovies, setBasketMovies]
+  )
   const movieDetailsStyle = {
     fontFamily: 'Arial, sans-serif',
     padding: '20px',
@@ -27,14 +37,17 @@ const MovieDetails = (props) => {
 
   return (
     <div style={movieDetailsStyle}>
-      <h1 style={h1Style}>{props.title}</h1>
+      <h1 style={h1Style}>{title}</h1>
       <p className="synopsis" style={synopsisStyle}>
-        {props.overview}
+        {overview}
       </p>
-      <p style={paragraphStyle}>Genre: {props.genres}</p>
-      <p style={paragraphStyle}>Tagline: {props.tagline}</p>
-      <p style={paragraphStyle}>Release date: {props.release_date}</p>
-      <p style={paragraphStyle}>URL: {props.poster_path}</p>
+      <p style={paragraphStyle}>Genre: {genres}</p>
+      <p style={paragraphStyle}>Tagline: {tagline}</p>
+      <p style={paragraphStyle}>Release date: {release_date}</p>
+      <p style={paragraphStyle}>URL: {poster_path}</p>
+      <button className="add-to-cart" onClick={() => addMovieBasket(id)}>
+        Add to Cart
+      </button>
     </div>
   )
 }
