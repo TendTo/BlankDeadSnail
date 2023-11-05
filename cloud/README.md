@@ -36,13 +36,4 @@ gcloud functions deploy FUNCTION_NAME --clear-build-env-vars
 
 [GCloud endpoint](https://europe-west2-durhack-404022.cloudfunctions.net/ping)
 [GCloud endpoint](https://europe-west2-durhack-404022.cloudfunctions.net/product)
-
-## Keys
-
-### API key
-
-afbc17299ed198bef0d4c7f450fd4692
-
-### API Read Access Token
-
-eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhZmJjMTcyOTllZDE5OGJlZjBkNGM3ZjQ1MGZkNDY5MiIsInN1YiI6IjY1NDZmNDY1ZDhjYzRhMDBhZDIzNGNhMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.bpP5IG8bLq2Co592I_QpZUpCAOaRlhzLXYVltip1MSM
+[GCloud endpoint](https://europe-west2-durhack-404022.cloudfunctions.net/movie)
