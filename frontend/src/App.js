@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useCursor, MeshReflectorMaterial, Image, Text, Environment } from '@react-three/drei'
 import { useRoute, useLocation } from 'wouter'
@@ -10,50 +10,27 @@ import MovieDetails from './MovieDetails'
 const GOLDENRATIO = 1.61803398875
 
 export const App = ({ images }) => {
-  const appContainerStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    display: 'flex'
-  }
+  const [showMovieOverlay, setshowMovieOverlay] = useState(false)
 
-  const canvasStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%'
-  }
-
-  const htmlElementStyle = {
-    position: 'fixed',
-    top: 0,
-    right: '-100%', // Initially hidden off the screen to the right
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    transition: 'right 0.8s' // Add a transition for smooth sliding animation
-  }
-
-  const movieData = {
+  const [movieData, setMovieData] = useState({
     title: 'Sample Movie',
     synopsis: 'This is a sample movie synopsis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     genre: 'Action',
     rating: '8.0',
-    adultRating: 'R',
-  };
+    adultRating: 'R'
+  })
 
-  const [showHtmlOverlay, setShowHtmlOverlay] = useState(false)
+  const handleFrameClick = useCallback((bool) => {
+    setshowMovieOverlay(bool)
+  }, [])
 
   return (
-    <div style={appContainerStyle}>
-      <Canvas dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }} style={canvasStyle}>
+    <div className="app-container">
+      <Canvas className="canvas" dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
         <color attach="background" args={['#191920']} />
         <fog attach="fog" args={['#191920', 0, 15]} />
         <group position={[0, -0.5, 0]}>
-          <Frames images={images} onFrameClick={(bool) => setShowHtmlOverlay(bool)} />
+          <Frames images={images} onFrameClick={handleFrameClick} />
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[50, 50]} />
             <MeshReflectorMaterial
@@ -72,8 +49,7 @@ export const App = ({ images }) => {
         </group>
         <Environment preset="city" />
       </Canvas>
-      <div style={{ ...htmlElementStyle, right: showHtmlOverlay ? '-35%' : '-100%' }}>
-        {/* Your HTML content for the right side of the screen */}
+      <div className={`movie-description ${showMovieOverlay ? 'show-movie-overlay' : 'hide-movie-overlay'}`}>
         <MovieDetails {...movieData} />
       </div>
     </div>
@@ -103,7 +79,10 @@ function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3(), o
     easing.dampQ(state.camera.quaternion, q, 0.4, dt)
   })
   return (
-    <group ref={ref} onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? '/' : '/item/' + e.object.name))} onPointerMissed={() => setLocation('/')}>
+    <group
+      ref={ref}
+      onClick={(e) => (e.stopPropagation(), setLocation(clicked.current === e.object ? '/' : '/item/' + e.object.name))}
+      onPointerMissed={() => setLocation('/')}>
       {images.map((props) => <Frame key={props.url} {...props} /> /* prettier-ignore */)}
     </group>
   )
@@ -112,17 +91,19 @@ function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3(), o
 function Frame({ url, c = new THREE.Color(), ...props }) {
   const image = useRef()
   const frame = useRef()
-  const shadow = useRef() // Add a ref for the shadow plane
   const [, params] = useRoute('/item/:id')
   const [hovered, hover] = useState(false)
-  const [rnd] = useState(() => Math.random())
   const name = getUuid(url)
   const isActive = params?.id === name
+
+  const xShift = !isActive && hovered ? 0.85 : 0.95
+  const yShift = !isActive && hovered ? 0.9 : 0.95
+
   useCursor(hovered)
   useFrame((state, dt) => {
-    image.current.material.zoom = 2 + Math.sin(rnd * 10000 + state.clock.elapsedTime / 3) / 2
-    easing.damp3(image.current.scale, [0.85 * (!isActive && hovered ? 0.85 : 1), 0.9 * (!isActive && hovered ? 0.905 : 1), 1], 0.1, dt)
-    easing.dampC(frame.current.material.color, hovered ? 'orange' : 'white', 0.1, dt)
+    image.current.material.zoom = 2
+    easing.damp3(image.current.scale, [xShift, yShift], 0.1, dt)
+    // easing.dampC(frame.current.material.color, hovered ? 'orange' : 'white', 0.1, dt)
   })
   return (
     <group {...props}>
@@ -130,7 +111,7 @@ function Frame({ url, c = new THREE.Color(), ...props }) {
         name={name}
         onPointerOver={(e) => (e.stopPropagation(), hover(true))}
         onPointerOut={() => hover(false)}
-        scale={[1, GOLDENRATIO, 0.05]}
+        scale={[1, GOLDENRATIO, 0.03]}
         position={[0, GOLDENRATIO / 2, 0]}>
         <boxGeometry />
         <meshStandardMaterial color="#151515" metalness={0.5} roughness={0.5} envMapIntensity={2} />

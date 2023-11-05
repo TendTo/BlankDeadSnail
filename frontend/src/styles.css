@@ -16,3 +16,38 @@ body {
   color: white;
   user-select: none;
 }
+
+.app-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.movie-description {
+  position: fixed;
+  top: 0;
+  right: -100%; /* Initially hidden off the screen to the right */
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  transition: right 0.8s; /* Add a transition for smooth sliding animation */
+}
+
+.show-movie-overlay {
+  right: -35%;
+}
+
+.hide-movie-overlay {
+  right: -100%;
+}
