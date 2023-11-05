@@ -11,7 +11,8 @@ import { Floor } from './Floor'
 
 const GOLDENRATIO = 1.61803398875
 
-const RANDOM_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie/random?seed=1'
+const RANDOM_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie/random?seed='
+const SEARCH_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie?title='
 
 /**
  * Main app component
@@ -20,23 +21,23 @@ const RANDOM_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie
 export const App = ({ images }) => {
   const [showMovieOverlay, setshowMovieOverlay] = useState(false)
   const [movieData, setMovieData] = useState(null)
-  const [showSearchBar, setShowSearchBar] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
+
   useEffect(() => {
-    // Make an API call here
     axios
-      .get(RANDOM_URL)
+      .get(RANDOM_URL + currentCounter)
       .then((response) => {
         for (let i = 0; i < images.length; i++) {
           images[i].movie = response.data[i]
         }
-        setLoading(false) // Update loading state to false
+        setLoading(false)
       })
       .catch((error) => {
         console.error('API call failed', error)
-        setLoading(false) // Update loading state to false even in case of an error
+        setLoading(false)
       })
   }, [])
 
@@ -57,7 +58,9 @@ export const App = ({ images }) => {
   }, [])
 
   const handleRandomClick = () => {
-    console.log('Enter')
+    const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
+    sessionStorage.setItem('counter', String(currentCounter + 1))
+    window.location.reload()
   }
 
   return (
