@@ -78,12 +78,18 @@ class Movie:
         return cls.from_query(results)
 
     @classmethod
-    def random_json(cls, n: int = 7) -> "list[Movie]":
-        movies = cls.random(n)
-        return json.dumps([movie.to_dict() for movie in movies])
+    def random_json(cls, seed: str = "", n: int = 7) -> "list[Movie]":
+        if not seed:
+            pass
+        elif cached_result := cache.retrieve_from_cache(f"###{seed}###"):
+            return cached_result
+        movies = cls.random(seed, n)
+        result = json.dumps([movie.to_dict() for movie in movies])
+        cache.store_in_cache(f"###{seed}###", result)
+        return result
 
     @classmethod
-    def random(cls, n: int = 7) -> "list[Movie]":
+    def random(cls, seed: str = "", n: int = 7) -> "list[Movie]":
         client = bigquery.Client(
             project=os.environ["PROJECT_ID"], location=os.environ["LOCATION"]
         )
@@ -93,7 +99,21 @@ class Movie:
             ORDER BY r
             LIMIT {n}
         """
-        query_job = client.query(query)
+        job_config = None
+        print("seed", seed)
+        if seed:
+            query = f"""
+                SELECT *, MD5(CONCAT(@seed, id)) as r
+                FROM {cls.TABLE}
+                ORDER BY r
+                LIMIT {n}
+            """
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter("seed", "STRING", seed),
+                ]
+            )
+        query_job = client.query(query, job_config=job_config)
         results = query_job.result()
         return cls.from_query(results)
 
@@ -119,6 +139,7 @@ class Movie:
 
     @classmethod
     def from_row(cls, row: dict) -> "Movie":
+        print(row.r)
         return cls(
             id=row.id or 0,
             overview=row.overview or "",

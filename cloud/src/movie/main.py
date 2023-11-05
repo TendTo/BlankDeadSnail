@@ -41,9 +41,10 @@ def get(req: "Request") -> "Response":
     # if re.match(r"^/all$", path):
     # if prod_id := re.match(r"^/\d+$", path):
     if re.match(r"^/random$", path):
+        seed = req.args.get("seed", "0")
         n = int(req.args.get("n", 7))
         return Response(
-            Movie.random_json(n),
+            Movie.random_json(seed, n),
             200,
             headers=HEADERS,
         )
