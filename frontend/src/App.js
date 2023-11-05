@@ -21,7 +21,7 @@ const SEARCH_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie
 export const App = ({ images }) => {
   const [showMovieOverlay, setshowMovieOverlay] = useState(false)
   const [movieData, setMovieData] = useState(null)
-  const [searchText, setSearchText] = useState('')
+
   const [loading, setLoading] = useState(true)
 
   const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
@@ -63,23 +63,6 @@ export const App = ({ images }) => {
     [showMovieOverlay]
   )
 
-  const handleSearchInputChange = useCallback((e) => {
-    setSearchText(e.target.value)
-  }, [])
-
-  const handleRandomClick = () => {
-    const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
-    sessionStorage.setItem('counter', String(currentCounter + 1))
-    sessionStorage.setItem('searching', 'false')
-    window.location.reload()
-  }
-
-  const handleSearchClick = () => {
-    sessionStorage.setItem('search_term', searchText)
-    sessionStorage.setItem('searching', 'true')
-    window.location.reload()
-  }
-
   return (
     <div className="app-container">
       {loading ? (
@@ -104,22 +87,63 @@ export const App = ({ images }) => {
           <div className="spinner"></div>
         </div>
       ) : (
-        <div className="parent">
-          <div className="search-bar-container">
-            <input type="text" placeholder="A movie about..." value={searchText} onChange={handleSearchInputChange} className="search-input" />
-            <div className="buttons">
-              <button className="search-button" onClick={handleSearchClick}>
-                Search
-              </button>
-              <button className="random-button" onClick={handleRandomClick}>
-                Random
-              </button>
-            </div>
-          </div>
-        </div>
+        <SearchBox />
       )}
       <div className={`movie-description ${showMovieOverlay ? 'show-movie-overlay' : 'hide-movie-overlay'}`}>
         {showMovieOverlay && <MovieDetails {...movieData} />}
+      </div>
+    </div>
+  )
+}
+
+function SearchBox() {
+  const [searchText, setSearchText] = useState('')
+
+  const handleSearchInputChange = useCallback((e) => {
+    setSearchText(e.target.value)
+  }, [])
+
+  const handleRandomClick = () => {
+    const currentCounter = parseInt(sessionStorage.getItem('counter')) || 0
+    sessionStorage.setItem('counter', String(currentCounter + 1))
+    sessionStorage.setItem('searching', 'false')
+    window.location.reload()
+  }
+
+  const handleSearchClick = () => {
+    if (searchText.length > 0) {
+      sessionStorage.setItem('search_term', searchText)
+      sessionStorage.setItem('searching', 'true')
+      window.location.reload()
+    }
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.code === 'Enter') {
+      handleSearchClick()
+    }
+  }
+
+  return (
+    <div className="parent">
+      <div className="search-bar-container">
+        <input
+          type="text"
+          placeholder="A movie about..."
+          value={searchText}
+          onChange={handleSearchInputChange}
+          onKeyDown={handleKeyDown}
+          maxLength={30}
+          className="search-input"
+        />
+        <div className="buttons">
+          <button className="search-button" onClick={handleSearchClick}>
+            Search
+          </button>
+          <button className="random-button" onClick={handleRandomClick}>
+            Random
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -164,7 +188,11 @@ function Frames({ images, q = new THREE.Quaternion(), p = new THREE.Vector3(), o
 
   return (
     <group ref={ref} onClick={handleClick} onPointerMissed={() => setLocation('/')}>
-      {images.map((props) => <Frame key={props.url} onFrameClick={onFrameClick} {...props} /> /* prettier-ignore */)}
+      {images
+        .filter((props) => props.movie) // Filter objects with the "movie" attribute
+        .map((props) => (
+          <Frame key={props.url} onFrameClick={onFrameClick} {...props} />
+        ))}
     </group>
   )
 }
@@ -182,7 +210,7 @@ function Frame({ url, c = new THREE.Color(), onFrameClick, ...props }) {
     easing.damp3(image.current.scale, [0.85 * (!isActive && hovered ? 0.95 : 1), 0.9 * (!isActive && hovered ? 0.95 : 1), 1], 0.1, dt)
   })
 
-  const imageUrl = props.movie.poster_path ? props.movie.poster_path : url
+  const imageUrl = props.movie.poster_path
 
   return (
     <group {...props}>
