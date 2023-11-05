@@ -9,6 +9,7 @@
   ],
   "main": "src/index.js",
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
     "@pmndrs/assets": "1.6.0",
     "@pmndrs/branding": "0.0.8",
     "@react-three/drei": "9.88.11",
@@ -21,8 +22,7 @@
     "react-scripts": "5.0.1",
     "three": "0.153.0",
     "uuid-by-string": "4.0.0",
-    "wouter": "2.11.0",
-    "@babel/plugin-proposal-private-property-in-object": "^7.16.7"
+    "wouter": "2.11.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -35,5 +35,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "daisyui": "^3.9.4"
+  }
 }
