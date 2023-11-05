@@ -9,6 +9,7 @@ import MovieDetails from './MovieDetails'
 import axios from 'axios'
 import { Floor } from './Floor'
 import { Basket } from './Basket'
+import { Button } from 'react-daisyui'
 
 const GOLDENRATIO = 1.61803398875
 
@@ -145,12 +146,8 @@ function SearchBox() {
           className="search-input"
         />
         <div className="buttons">
-          <button className="search-button" onClick={handleSearchClick}>
-            Search
-          </button>
-          <button className="random-button" onClick={handleRandomClick}>
-            Random
-          </button>
+          <Button onClick={handleSearchClick}>Search</Button>
+          <Button onClick={handleRandomClick}>Random</Button>
         </div>
       </div>
     </div>

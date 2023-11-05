@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef } from 'react'
+import { Button, Modal } from 'react-daisyui'
 
 /**
  *
@@ -6,7 +7,7 @@ import { useCallback, useState } from 'react'
  * @returns
  */
 export function Basket({ basketMovies, setBasketMovies }) {
-  const [showBasket, setShowBasket] = useState(false)
+  const ref = useRef(null)
 
   const deleteShowBasket = useCallback(
     (id) => {
@@ -21,49 +22,38 @@ export function Basket({ basketMovies, setBasketMovies }) {
     localStorage.setItem('basket', '[]')
   }, [setBasketMovies])
 
+  const handleShow = useCallback(() => {
+    ref.current?.showModal()
+  }, [ref])
+
   return (
     <>
-      <button className="basket-button" onClick={() => setShowBasket(true)}>
-        BASKET
-      </button>
-      {showBasket && (
-        <div className="modal" data-backdrop="static" data-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title" id="staticBackdropLabel">
-                  Your Cart
-                </h5>
-                {basketMovies.map((movie) => (
-                  <div className="basket-movie" key={movie.id}>
-                    <div className="basket-movie-details">
-                      <div className="basket-movie-title">{movie.title}</div>
-                      <div className="basket-movie-price">£{movie.price}</div>
-                    </div>
-                    <button onClick={setBasketMovies} type="button" className="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                ))}
+      <Button onClick={() => handleShow()}>BASKET</Button>
+      <Modal ref={ref}>
+        <Modal.Header className="font-bold">Your basket</Modal.Header>
+        <Modal.Body>
+          {basketMovies.map((movie) => (
+            <div key={movie.id}>
+              <div className="flex flex-auto gap-1">
+                <p>{movie.title}</p>
+                <p>£1</p>
               </div>
-              <div className="modal-body">
-                <table className="show-cart table"></table>
-                <div className="grand-total">
-                  Total price: £<span className="total-cart">{}</span>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => setShowBasket(false)}>
-                  Close
-                </button>
-                <button type="button" className="btn btn-danger clear-all" onClick={() => setBasketMovies([])}>
-                  Clear All
-                </button>
-              </div>
+              {/* <Button onClick={setBasketMovies} type="button">
+                <span aria-hidden="true">&times;</span>
+              </Button> */}
             </div>
-          </div>
-        </div>
-      )}
+          ))}
+          <div className="grand-total">Total price: £{Array.isArray(basketMovies) ? basketMovies.length: 0}</div>
+        </Modal.Body>
+        <Modal.Actions>
+          <form method="dialog">
+            <Button>Close</Button>
+          </form>
+          <Button type="button" className="btn btn-danger clear-all" onClick={() => setBasketMovies([])}>
+            Clear All
+          </Button>
+        </Modal.Actions>
+      </Modal>
     </>
   )
 }

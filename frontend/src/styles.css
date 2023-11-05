@@ -118,11 +118,6 @@ body {
   background-color: #2e2a29; /* Change the background color on hover */
 }
 
-.buttons {
-  display: flex;
-  gap: 5px;
-}
-
 .parent {
   display: flex;
   justify-content: center;
