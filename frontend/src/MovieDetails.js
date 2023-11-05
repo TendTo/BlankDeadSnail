@@ -1,6 +1,7 @@
 import React from 'react'
 
-const MovieDetails = ({ title, synopsis, genre, rating, adultRating }) => {
+const MovieDetails = (props) => {
+  console.log(props)
   const movieDetailsStyle = {
     fontFamily: 'Arial, sans-serif',
     padding: '20px',
@@ -26,13 +27,13 @@ const MovieDetails = ({ title, synopsis, genre, rating, adultRating }) => {
 
   return (
     <div style={movieDetailsStyle}>
-      <h1 style={h1Style}>{title}</h1>
+      <h1 style={h1Style}>{props.title}</h1>
       <p className="synopsis" style={synopsisStyle}>
-        {synopsis}
+        {props.overview}
       </p>
-      <p style={paragraphStyle}>Genre: {genre}</p>
-      <p style={paragraphStyle}>Rating: {rating}</p>
-      <p style={paragraphStyle}>Adult Rating: {adultRating}</p>
+      <p style={paragraphStyle}>Genre: {props.genres}</p>
+      <p style={paragraphStyle}>Tagline: {props.tagline}</p>
+      <p style={paragraphStyle}>Release date: {props.release_date}</p>
     </div>
   )
 }
