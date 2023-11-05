@@ -1,34 +1,95 @@
+# pylint: disable=missing-function-docstring,missing-module-docstring,missing-class-docstring
+from typing import TYPE_CHECKING
 from dataclasses import dataclass
+import os
+import asyncio
+import aiohttp
 import json
-from random import randint
-from faker import Faker
+
+if TYPE_CHECKING:
+    from amz_product import ProductApiResponse
+    from amz_search import SearchApiResponse, SearchResult
+
+CACHE: "dict[int, Product]" = {}
 
 
 @dataclass
 class Product:
-    id: int
-    name: str
-    price: float
-    quantity: int
-    description: str
-    category: str
-    img: str | bytes
+    id: "int"
+    title: "str"
+    price: "float"
+    description: "str"
+    category: "str"
+    image: "str | bytes"
+
+    def to_json(self) -> "str":
+        return json.dumps(self.__dict__)
 
     @classmethod
-    def generate_random(cls):
-        fake = Faker("en_GB")
-        return cls(
-            id=randint(0, 1000),
-            name=fake.name(),
-            price=randint(0, 1000),
-            quantity=randint(0, 1000),
-            description=fake.text(),
-            category=fake.word(),
-            img=fake.image_url(),
+    async def search(cls, search_term: "str") -> "tuple[Product]":
+        async with aiohttp.ClientSession() as session:
+            search_results: "SearchApiResponse" = await cls._search_request(
+                session, search_term
+            )
+            return await cls._search_results(session, search_results)
+
+    @staticmethod
+    async def _search_request(
+        session: "aiohttp.ClientSession", search_term: "str"
+    ) -> "SearchApiResponse":
+        params = {
+            "api_key": os.environ["RAINFOREST_API_KEY"],
+            "type": "search",
+            "amazon_domain": "amazon.co.uk",
+            "search_term": search_term,
+            "language": "en_GB",
+            "currency": "gbp",
+            "max_page": "1",
+        }
+        resp = await session.get(
+            url="https://api.rainforestapi.com/request", params=params
         )
+        return await resp.json()
 
-    def to_dict(self):
-        return self.__dict__
+    @classmethod
+    async def _search_results(
+        cls, session: "aiohttp.ClientSession", api_result: "SearchApiResponse"
+    ) -> "tuple[Product]":
+        products: "list[Product]" = []
+        tasks = []
+        # before going to the api, check the cache
+        for search_result in api_result.searchresults:
+            if search_result.asin in CACHE:
+                tasks.append(CACHE[search_result.asin])
+            else:
+                # tasks.append(cls._product_request(session, search_result.asin))
+                tasks.append(cls._product_request(session, search_result.asin))
+        products.extend(await asyncio.gather(*tasks))
+        for product in products:
+            CACHE[product.id] = product
+        return products
 
-    def to_json(self):
-        return json.dumps(self.to_dict())
+    @classmethod
+    async def _product_request(
+        cls, session: "aiohttp.ClientSession", search_result: "SearchResult"
+    ) -> "Product":
+        params = {
+            "api_key": os.environ["RAINFOREST_API_KEY"],
+            "type": "product",
+            "amazon_domain": "amazon.co.uk",
+            "asin": search_result.asin,
+            "currency": "gbp",
+            "language": "en_GB",
+        }
+        # resp = await session.get(
+        #     url="https://api.rainforestapi.com/request", params=params
+        # )
+        # res: "ProductApiResponse" = await resp.json()
+        return cls(
+            id=search_result.asin,
+            title=search_result.title,
+            price=search_result.price.value,
+            description="",
+            category="",
+            image=search_result.image,
+        )

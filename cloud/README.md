@@ -21,3 +21,18 @@ Send requests to this function using `curl` from another terminal window:
 curl localhost:8080
 # Output: Hello world!
 ```
+
+```shell
+# Deploy
+gcloud functions deploy FUNCTION_NAME  --gen2 --region=europe-west2 --entry-point main --runtime py311 --trigger-http --allow-unauthenticated  --env-vars-file .env.yaml
+
+gcloud functions deploy FUNCTION_NAME --update-build-env-vars FOO=bar
+gcloud functions deploy FUNCTION_NAME --update-build-env-vars FOO=bar,BAZ=boo
+gcloud functions deploy FUNCTION_NAME --remove-build-env-vars FOO,BAZ
+gcloud functions deploy FUNCTION_NAME --clear-build-env-vars
+```
+
+## Public endpoint
+
+[GCloud endpoint](https://europe-west2-durhack-404022.cloudfunctions.net/ping)
+[GCloud endpoint](https://europe-west2-durhack-404022.cloudfunctions.net/product)

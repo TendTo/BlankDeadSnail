@@ -2,12 +2,12 @@
 from typing import TYPE_CHECKING
 import functions_framework
 from flask import Response
-from product import Product
-import re
 import os
 import redis
+from google.cloud import bigquery
+import re
+from movie import Movie
 import json
-
 
 if TYPE_CHECKING:
     from flask import Request
@@ -23,21 +23,35 @@ def attribute_error(e: "AttributeError") -> "Response":
     return Response(f"The attribute {e} was not found.", 500)
 
 
-async def get(req: "Request") -> str:
+@functions_framework.errorhandler(ValueError)
+def value_error(e: "ValueError") -> "Response":
+    return Response(f"The value provided was not the correct type: {e}.", 400)
+
+
+def from_movies_to_response(movies: "list[Movie]") -> "Response":
+    return Response(
+        json.dumps([movie.to_dict() for movie in movies]),
+        200,
+        headers={"Content-Type": "application/json"},
+    )
+
+
+def get(req: "Request") -> "Response":
     path = req.path
+    # if re.match(r"^/all$", path):
+    # if prod_id := re.match(r"^/\d+$", path):
     if re.match(r"^/random$", path):
-        product = await Product.search("computer")
-        return Response(product.to_json(), 200)
-    if re.match(r"^/all$", path):
-        products = [product.to_json() for product in Product.from_fake_store_all()]
-        return Response(json.dumps(products), 200)
-    if prod_id := re.match(r"^/\d+$", path):
-        prod_id = int(prod_id.group(0)[1:])
-        return Response(Product.from_fake_store_id(prod_id).to_json(), 200)
+        n = int(req.args.get("n", 7))
+        movies = Movie.random(n)
+        return from_movies_to_response(movies)
     if re.match(r"^/", path):
-        return "root"
-        return Response(Product.generate_random().to_json(), 200)
-    return "unsupported path"
+        n = int(req.args.get("n", 7))
+        title = req.args.get("title", None)
+        if title is None:
+            return Response("missing title", 400)
+        movies = Movie.from_title(title, n)
+        return from_movies_to_response(movies)
+
     return Response("unsupported path", 400)
 
 
@@ -65,6 +79,21 @@ def main(req: "Request") -> "Response":
     if req.method == "DELETE":
         return delete(req)
     return Response("unsupported method", 400)
+
+
+def bq_call():
+    client = bigquery.Client(
+        project=os.environ["PROJECT_ID"], location=os.environ["LOCATION"]
+    )
+    query = """
+        SELECT title
+        FROM `durhack-404022.movies.movies`
+        WHERE title LIKE '%Star Wars%'
+        LIMIT 100
+    """
+    query_job = client.query(query)
+    results = query_job.result()  # Waits for job to complete.
+    return [row.title for row in results]
 
 
 def redis_call():
