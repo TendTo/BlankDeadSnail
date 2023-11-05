@@ -34,6 +34,7 @@ const MovieDetails = (props) => {
       <p style={paragraphStyle}>Genre: {props.genres}</p>
       <p style={paragraphStyle}>Tagline: {props.tagline}</p>
       <p style={paragraphStyle}>Release date: {props.release_date}</p>
+      <p style={paragraphStyle}>URL: {props.poster_path}</p>
     </div>
   )
 }

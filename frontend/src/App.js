@@ -6,8 +6,11 @@ import { useRoute, useLocation } from 'wouter'
 import { easing } from 'maath'
 import getUuid from 'uuid-by-string'
 import MovieDetails from './MovieDetails'
+import axios from 'axios'
 
 const GOLDENRATIO = 1.61803398875
+
+const SERVER_URL = 'https://europe-west2-durhack-404022.cloudfunctions.net/movie/random?seed=1'
 
 const MOVIES = [
   {
@@ -150,9 +153,25 @@ export const App = ({ images }) => {
   const [showMovieOverlay, setshowMovieOverlay] = useState(false)
   const [movieData, setMovieData] = useState(null)
 
-  for (let i = 0; i < images.length; i++) {
-    images[i].movie = MOVIES[i]
-  }
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Make an API call here
+    axios
+      .get(SERVER_URL)
+      .then((response) => {
+        for (let i = 0; i < images.length; i++) {
+          images[i].movie = response.data[i]
+        }
+        setLoading(false) // Update loading state to false
+      })
+      .catch((error) => {
+        console.error('API call failed', error)
+        setLoading(false) // Update loading state to false even in case of an error
+      })
+  }, [])
+
+  console.log(movieData)
 
   const handleFrameClick = useCallback(
     (bool, newData) => {
@@ -168,33 +187,47 @@ export const App = ({ images }) => {
 
   return (
     <div className="app-container">
-      <Canvas className="canvas" dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
-        <color attach="background" args={['#191920']} />
-        <fog attach="fog" args={['#191920', 0, 15]} />
-        <group position={[0, -0.5, 0]}>
-          <Frames images={images} onFrameClick={handleFrameClick} />
-          <mesh rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[50, 50]} />
-            <MeshReflectorMaterial
-              blur={[300, 100]}
-              resolution={2048}
-              mixBlur={1}
-              mixStrength={80}
-              roughness={1}
-              depthScale={1.2}
-              minDepthThreshold={0.4}
-              maxDepthThreshold={1.4}
-              color="#050505"
-              metalness={0.5}
-            />
-          </mesh>
-        </group>
-        <Environment preset="city" />
-      </Canvas>
+      {loading ? ( // Check if loading is true
+        <div>Loading...</div>
+      ) : (
+        <Canvas className="canvas" dpr={[1, 1.5]} camera={{ fov: 70, position: [0, 2, 15] }}>
+          <color attach="background" args={['#191920']} />
+          <fog attach="fog" args={['#191920', 0, 15]} />
+          <group position={[0, -0.5, 0]}>
+            <Title />
+            <Frames images={images} onFrameClick={handleFrameClick} />
+            <mesh rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[50, 50]} />
+              <MeshReflectorMaterial
+                blur={[300, 100]}
+                resolution={2048}
+                mixBlur={1}
+                mixStrength={80}
+                roughness={1}
+                depthScale={1.2}
+                minDepthThreshold={0.4}
+                maxDepthThreshold={1.4}
+                color="#050505"
+                metalness={0.5}
+              />
+            </mesh>
+          </group>
+          <Environment preset="city" />
+        </Canvas>
+      )}
+
       <div className={`movie-description ${showMovieOverlay ? 'show-movie-overlay' : 'hide-movie-overlay'}`}>
         {showMovieOverlay && <MovieDetails {...movieData} />}
       </div>
     </div>
+  )
+}
+
+function Title() {
+  return (
+    <Text maxWidth={0.2} position={[0, 2.8, 0]} rotation={[0.0, 0, 0]} fontSize={0.9} color="white">
+      IMMERSIO
+    </Text>
   )
 }
 
@@ -244,9 +277,10 @@ function Frame({ url, c = new THREE.Color(), onFrameClick, ...props }) {
 
   useCursor(hovered)
   useFrame((state, dt) => {
-    image.current.material.zoom = 2
     easing.damp3(image.current.scale, [0.85 * (!isActive && hovered ? 0.95 : 1), 0.9 * (!isActive && hovered ? 0.95 : 1), 1], 0.1, dt)
   })
+
+  const imageUrl = props.movie.poster_path ? props.movie.poster_path : url
 
   return (
     <group {...props}>
@@ -255,7 +289,7 @@ function Frame({ url, c = new THREE.Color(), onFrameClick, ...props }) {
         onPointerOver={(e) => (e.stopPropagation(), hover(true))}
         onPointerOut={() => hover(false)}
         onClick={() => onFrameClick(true, props.movie)}
-        scale={[1, GOLDENRATIO, 0.03]}
+        scale={[1, 1.5, 0.03]}
         position={[0, GOLDENRATIO / 2, 0]}>
         <boxGeometry />
         <meshStandardMaterial color="#151515" metalness={0.5} roughness={0.5} envMapIntensity={2} />
@@ -263,7 +297,7 @@ function Frame({ url, c = new THREE.Color(), onFrameClick, ...props }) {
           <boxGeometry />
           <meshBasicMaterial toneMapped={false} fog={false} />
         </mesh>
-        <Image raycast={() => null} ref={image} position={[0, 0, 0.7]} url={url} />
+        <Image raycast={() => null} ref={image} position={[0, 0, 0.7]} url={imageUrl} />
       </mesh>
     </group>
   )
